@@ -8,4 +8,4 @@ The detected color can be changed using the HSV parameters of the script :
 
 ![hsv](https://user-images.githubusercontent.com/14167172/72055168-9868a980-32ca-11ea-8e76-8c017250eac0.PNG)
 
-Shape can be changed in the script.
+The shape can be changed in the script.
