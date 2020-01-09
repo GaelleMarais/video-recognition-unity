@@ -31,7 +31,7 @@ public class VideoCaptureScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // video = new VideoCapture("Assets/Videos/lego.avi");
+        // video = new VideoCapture("Assets/Videos/test_camera.flv");
         video = new VideoCapture(0);
     }
 
@@ -42,7 +42,6 @@ public class VideoCaptureScript : MonoBehaviour
         orig = video.QueryFrame();
         if(orig != null)
         {
-            CvInvoke.Imshow("1", orig);
             CvInvoke.WaitKey(24);
 
             Mat image2 = orig.Clone();
@@ -102,15 +101,17 @@ public class VideoCaptureScript : MonoBehaviour
         return result;
     }
 
-    Mat Borders(Mat image, Mat orig)
+    Mat Borders(Mat binary, Mat orig)
     {
+        Mat image = orig.Clone();
+
         VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint(100);
         VectorOfPoint biggestContour = new VectorOfPoint(100);
         int biggestContourIndex = -1;
         double biggestContourArea = 0;
 
         Mat hierarchy = new Mat();
-        CvInvoke.FindContours(image, contours, hierarchy, RetrType.List, ChainApproxMethod.ChainApproxNone);
+        CvInvoke.FindContours(binary, contours, hierarchy, RetrType.List, ChainApproxMethod.ChainApproxNone);
 
         for(int i = 0; i < contours.Size; i++)
         {
@@ -122,11 +123,38 @@ public class VideoCaptureScript : MonoBehaviour
             }
         }
 
-        if(biggestContourIndex > -1)
+        // Draw biggest contour
+
+        // if(biggestContourIndex > -1)
+        // {
+        //    image = DrawContour(image, contours, biggestContourIndex);
+        // }
+
+        // Draw All contours
+
+        for (int i = 0; i < contours.Size; i++)
         {
-            CvInvoke.DrawContours(orig, contours, biggestContourIndex, new MCvScalar(244, 0, 0));
+            image = DrawContour(image, contours, i);
         }
 
-        return orig;
+        return image;
     }
+
+    Mat DrawContour(Mat input, VectorOfVectorOfPoint contours, int index)
+    {
+        Mat image = input.Clone();
+
+        MCvScalar color = new MCvScalar(35, 95, 255);
+        CvInvoke.DrawContours(image, contours, index, color, 4);
+
+        var moments = CvInvoke.Moments(contours[index]);
+        int cx = (int)(moments.M10 / moments.M00);
+        int cy = (int)(moments.M01 / moments.M00);
+        Point centroid = new Point(cx, cy);
+
+        CvInvoke.Circle(image, centroid, 4, color, 2);
+
+        return image;
+    }
+
 }
